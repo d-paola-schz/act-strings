@@ -4,6 +4,8 @@
 #include<fstream>
 #include <algorithm>
 #include <cctype>
+#include<chrono>
+
 
 bool soloEspacios(const std::string& s) {
     // Si la cadena está vacía o solo tiene espacios, regresa true
@@ -70,29 +72,42 @@ std::string manacher(std::string S){
 
 
 int main(){
-    std::ifstream archivo("libro1.txt");
+    std::vector<std::string> libros = {"libro1.txt", "libro2.txt", "libro3.txt", "libro4.txt", "libro5.txt"};
+
+    for(int i = 0; i < libros.size(); i++){
+        std::ifstream archivo(libros[i]);
+        
+        if (!archivo.is_open()) {
+            std::cerr << "Error: No se pudo abrir el archivo '"<< libros[i] <<"'. Asegúrate de que esté en la carpeta del proyecto." << std::endl;
+            return 1;
+        }
     
-    if (!archivo.is_open()) {
-        std::cerr << "Error: No se pudo abrir el archivo 'texto.txt'. Asegúrate de que esté en la carpeta del proyecto." << std::endl;
-        return 1;
+        std::string textoCompleto = "";
+        std::string linea;
+    
+        while (getline(archivo, linea)) {
+            if (!textoCompleto.empty()) textoCompleto +=" ";
+    
+            textoCompleto += linea;
+        }
+        archivo.close();
+    
+        std::cout << "Texto leído correctamente (" << textoCompleto.length() << " caracteres)." << std::endl;
+    
+        auto start = std::chrono::high_resolution_clock::now();
+        std::string palindromoMasLargo = manacher(textoCompleto);
+        auto end = std::chrono::high_resolution_clock::now();
+        auto time =
+            std::chrono::duration_cast<std::chrono::microseconds>(
+                end - start
+            ).count();
+    
+        std::cout << "El palindromo mas largo encontrado del "<< libros[i] <<": ["<< palindromoMasLargo << "]" << std::endl;
+        std::cout << "Longitud: " << palindromoMasLargo.length() << " caracteres." << std::endl;
+        std::cout << "Tiempo de busqueda: " << time  << " microsegundos "<< std::endl << std::endl;
+
+
     }
-
-    std::string textoCompleto = "";
-    std::string linea;
-
-    while (getline(archivo, linea)) {
-        if (!textoCompleto.empty()) textoCompleto +=" ";
-
-        textoCompleto += linea;
-    }
-    archivo.close();
-
-    std::cout << "Texto leído correctamente (" << textoCompleto.length() << " caracteres)." << std::endl;
-
-    std::string palindromoMasLargo = manacher(textoCompleto);
-
-    std::cout << "El palindromo mas largo encontrado es: ["<< palindromoMasLargo << "]" << std::endl;
-    std::cout << "Longitud: " << palindromoMasLargo.length() << " caracteres." << std::endl;
 
     return 0;
 }
